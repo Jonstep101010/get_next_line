@@ -17,29 +17,43 @@
 ** @param fd file descriptor to read from
 ** @return line read from file descriptor
 */
+#include <stdlib.h>
+#include <unistd.h>
+
 char	*get_next_line(int fd)
 {
-	static char	*save_line;;
+	static char	*save_line = NULL;
 	char		*line;
 	int			bytes_read;
 
-	line = malloc(1);
+	if (save_line == NULL)
+		save_line = malloc(1);
+	line = malloc(1024); // allocate enough memory for a line
 	bytes_read = 1;
-	while ((save_line == (char *)'\n') && (bytes_read != 0))
+	while (bytes_read > 0)
 	{
-		// read from fd
-		bytes_read = read(fd, line, 1);
-		ft_strjoin(save_line, line);
-		// if read fails, return NULL
+		bytes_read = read(fd, line, 1024);
 		if (bytes_read == -1)
+		{
+			free(line);
 			return (NULL);
-		// if read returns 0, return NULL
-		if (bytes_read == 0)
+		}
+		line[bytes_read] = '\0'; // terminate the string
+		save_line = ft_strjoin(save_line, line);
+		if (save_line == NULL)
+		{
+			free(line);
 			return (NULL);
-		// if read returns > 0, return line
-		if (bytes_read > 0)
-			return (line);
+		}
+		if (ft_strchr(save_line, '\n') != NULL)
+			break;
 	}
-	// get_next_line(fd);
+	free(line);
+	if (bytes_read == 0 && save_line[0] == '\0')
+		return (NULL);
+	line = ft_substr(save_line, 0, ft_strlen(save_line) - ft_strlen(ft_strchr(save_line, '\n')));
+	if (line == NULL)
+		return (NULL);
+	save_line = ft_strdup(ft_strchr(save_line, '\n') + 1);
 	return (line);
 }
