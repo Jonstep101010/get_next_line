@@ -15,6 +15,15 @@
 
 # include <stdlib.h>
 # include <unistd.h>
+# include <stddef.h>
+# include <stdio.h>
+# include <fcntl.h>
+# include <string.h>
+# include <ctype.h>
 
-char	*get_next_line(int fd);
+char			*get_next_line(int fd);
+char		*ft_strjoin(char const *s1, char const *s2);
+size_t	ft_strlen(const char *str);
+size_t	ft_strlcpy(char *dst, const char *src, size_t size);
+size_t	ft_strlcat(char *dst, const char *src, size_t dstsize);
 #endif
