@@ -1,0 +1,6 @@
+Hello
+test
+World
+usage
+0
+'0x80'
