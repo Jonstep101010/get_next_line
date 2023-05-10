@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:25:50 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/05 17:42:21 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/10 19:58:03 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,52 +16,51 @@ char	*read_line(char *buffer, int fd)
 {
 	int		bytes_read;
 	char		*stash;
-	int				i;
 
-	i = 0;
-	stash = (char *) malloc(BUFFER_SIZE + 1);
+	bytes_read = 1;
+	stash = malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	if (!stash)
 		return (NULL);
-	bytes_read = 0;
-	while (buffer[i] != '\0' && buffer[i] != '\n' && i < BUFFER_SIZE)
+	while ((!ft_strchr(buffer, '\n') && bytes_read != 0))
 	{
-		i++;
+		bytes_read = read(fd, stash, BUFFER_SIZE);
+		if (bytes_read == -1)
+		{
+			free(stash);
+			free(buffer);
+			stash = NULL;
+			return (NULL);
+		}
+		stash[bytes_read] = '\0';
+		buffer = ft_strjoin(buffer, stash);
+		if (!buffer)
+			return (free(stash), NULL);
 	}
-	bytes_read = read(fd, stash, BUFFER_SIZE);
-	if (bytes_read == 0)
-		return (free(stash), buffer);
-	
-	//append stash to buffer
-	if (!buffer)
-		return (free(stash), NULL);
-	buffer = ft_strjoin(stash, buffer);
-	return (free(stash), buffer);
+	free(stash);
+	return (buffer);
 }
 
 char	*new_buffer(char *buffer)
 {
 	int			i;
 	int			n;
-	int			buffer_len;
 	char	*new_buffer;
 
 	i = 0;
 	n = 0;
+	if (!buffer)
+		return (NULL);
 	while (buffer[n] && buffer[n] != '\n')
 		n++;
-	buffer_len = ft_strlen(buffer);
-	if (buffer[n + 1] == '\n')
-		new_buffer = malloc(sizeof(char) * (buffer_len - n));
 	if (buffer[n] == '\0')
-	{
-		free(buffer);
-		return (0);
-	}
+		return (free(buffer), NULL);
+	n++;
+	new_buffer = malloc(sizeof(char) * ft_strlen(buffer) - n + 1);
+	if (!new_buffer)
+		return (free(buffer), NULL);
 	while (buffer[n])
 	{
-		new_buffer[i] = buffer[n];
-		i++;
-		n++;
+		new_buffer[i++] = buffer[n++];
 	}
 	new_buffer[i] = '\0';
 	free(buffer);
@@ -75,21 +74,25 @@ char	*current_line(char *s)
 	size_t	i;
 
 	i = 0;
+	line = NULL;
 	if (!s)
-		return (0);
-	while (s[i] != '\0' && s[i] != '\n')
+		return (NULL);
+	while (s[i] && s[i] != '\n')
 		i++;
 	if (s[i] == '\n')
-		i++;
-	line = (char *) malloc(i + 1);
+		i++;	
+	line = malloc(sizeof(char) * (i + 1));
 	if (!line)
-		return (0);
-	while (s[i + 1] != '\0' && s[i + 1] != '\n')
+		return (NULL);
+	i = 0;
+	while (s[i] && s[i] != '\n')
 	{
 		line[i] = s[i];
 		i++;
 	}
-	line[i] = '\0';
+	line[i] = s[i];
+	if (line[i])
+		line[++i] = '\0';
 	return (line);
 }
 
@@ -102,19 +105,24 @@ char	*current_line(char *s)
 char	*get_next_line(int fd)
 {
 	char			*line;
-	static char		*buffer;
+	static char		*buffer = NULL;
 
 	if (fd < 0 || BUFFER_SIZE < 1)
 		return (0);
 	buffer = read_line(buffer, fd);
-	// printf("\n%s\n", buffer);
 	if (!buffer)
-		return (0);
+		return (NULL);
 	line = current_line(buffer);
+	// Check if line variable (NULL or '\0') is an empty string and
+	// if there is no newline in the buffer variable
+	// this means the file is empty or the file has reached the end
+	if (line[0] == '\0' && !ft_strchr(buffer, '\n')){
+		free(line);
+		buffer = new_buffer(buffer);
+		return (NULL);
+	}
 	buffer = new_buffer(buffer);
-	//free until buffer - return after newline
-	free(line);
-	return (buffer);
+	return (line);
 }
 
 /* int	main(void)
@@ -122,10 +130,37 @@ char	*get_next_line(int fd)
 	int	fd;
 	char	*lineprint;
 	
-	fd = open("test.txt", O_RDONLY);
+	fd = open("1chartest.txt", O_RDONLY);
 	lineprint = get_next_line(fd);
 	printf("\n%s\n", lineprint);
 	// printf("%s", get_next_line(fd));
 	close(fd);
+	free(lineprint);
 	return (0);
 } */
+
+
+// char	*read_line(char *buffer, int fd)
+// {
+// 	int nbread;
+// 	nbread = read(fd, buffer, BUFFER_SIZE - 1);
+// 	return (buffer);
+// }
+
+// /*
+// @brief read a line from a file descriptor
+// @param fd file descriptor to read from
+// @reaturn line read from file descriptor
+// */
+// char	*get_next_line(int fd)
+// {
+// 	char			*line;
+// 	static char		*buffer;
+
+// 	if (fd < 0 || BUFFER_SIZE < 1)
+// 		return (0);
+// 	line = read_line(buffer, fd);
+// 	//free until buffer - return after newline
+// 	// free(line);
+// 	return (line);
+// }

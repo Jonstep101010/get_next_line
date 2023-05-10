@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:26:30 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/05 16:35:35 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/10 19:29:36 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,8 @@ char	*ft_strchr(const char *str, int c)
 {
 	char	*ptr;
 
+	if (str == NULL)
+		return (NULL);
 	ptr = (char *)str;
 	if (*ptr == (char)c)
 		return (ptr);
@@ -58,30 +60,35 @@ char	*ft_strchr(const char *str, int c)
 	return (0);
 }
 
-char	*ft_strjoin(const char *s1, const char *s2)
+char	*ft_strjoin(char *s1, char *s2)
 {
 	char	*copy;
-	size_t	s1len;
-	size_t	s2len;
 	size_t	i;
 	size_t	x;
 
-	i = 0;
+	i = -1;
 	x = 0;
-	s1len = ft_strlen(s1);
-	s2len = ft_strlen(s2);
-	copy = (char *) malloc(s1len + s2len + 1);
-	if (!copy)
-		return (0);
 	if (!s1 && !s2)
-		copy[i] = '\0';
-	while (i < s1len + s2len && i < s1len)
+		return (NULL);
+	if (!s1)
 	{
-		copy[i] = s1[i];
-		i++;
+		s1 = malloc(sizeof(char));
+		if (!s1)
+			return (free(s1), NULL);
+		s1[0] = '\0';
 	}
-	while (i < s1len + s2len)
-		copy[i] = s2[x];
+	// if (!s2)
+	// 	return (s1);
+	copy = (char *) ft_calloc(sizeof(char), ft_strlen(s1) + ft_strlen(s2) + 1);
+	if (!copy)
+		return (free(s1), NULL);
+	while (s1[++i] != '\0')
+		copy[i] = s1[i];
+	while (s2[x] != '\0')
+		copy[i++] = s2[x++];
 	copy[i] = '\0';
-	return (copy);
+	return (free(s1), copy);
 }
+
+//strjoin needs to work if string does not exist
+//free string
