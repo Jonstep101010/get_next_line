@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jschwabe <jonas.paul.schwabe@gmail.com>    +#+  +:+       +#+        */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:26:30 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/11 12:39:43 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/11 18:20:55 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,25 @@ size_t	ft_strlen(const char *s)
 	while (s[i] != '\0')
 		i++;
 	return (i);
+}
+
+size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
+{
+	size_t	i_src;
+	size_t	i_dst;
+	size_t	dstlen;
+
+	i_src = 0;
+	dstlen = ft_strlen(dst);
+	i_dst = dstlen;
+	if (dstsize <= dstlen || dstsize == 0)
+		return (dstsize + ft_strlen(src));
+	while (src[i_src] != '\0' && (i_src < dstsize - dstlen - 1))
+	{
+		dst[i_dst++] = src[i_src++];
+	}
+	dst[i_dst] = '\0';
+	return (dstlen + ft_strlen(src));
 }
 
 void	*ft_calloc(size_t items, size_t size)
@@ -52,38 +71,39 @@ char	*ft_strchr(const char *str, int c)
 	if (!str)
 		return (NULL);
 	ptr = (char *)str;
-	if (*ptr == (char)c)
+	c = (char) c;
+	if (*ptr == c)
 		return (ptr);
 	while (*ptr++)
-		if (*ptr == (char)c)
+		if (*ptr == c)
 			return (ptr);
-	return (0);
+	return (NULL);
 }
 
 char	*ft_strjoin(char *s1, char *s2)
 {
 	char	*copy;
-	size_t	i;
-	size_t	x;
 
-	i = -1;
-	x = 0;
 	if (!s1 && !s2)
 		return (NULL);
 	if (!s1)
 	{
 		s1 = malloc(sizeof(char));
 		if (!s1)
-			return (free(s1), NULL);
+			return (NULL);
 		s1[0] = '\0';
 	}
-	copy = (char *) malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
+	if (!s2)
+		return (s1);
+	copy = (char *)malloc((ft_strlen(s1) + ft_strlen(s2) + 1) * sizeof(char));
 	if (!copy)
-		return (free(s1), NULL);
-	while (s1[++i] != '\0')
-		copy[i] = s1[i];
-	while (s2[x] != '\0')
-		copy[i++] = s2[x++];
-	copy[i] = '\0';
+	{
+		free(s1);
+		return (NULL);
+	}
+	copy[0] = '\0';
+	ft_strlcat(copy, s1, ft_strlen(s1) + 1);
+	ft_strlcat(copy, s2, ft_strlen(s1) + ft_strlen(s2) + 1);
 	return (free(s1), copy);
 }
+

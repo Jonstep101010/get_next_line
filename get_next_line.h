@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jschwabe <jonas.paul.schwabe@gmail.com>    +#+  +:+       +#+        */
+/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:26:18 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/11 12:33:00 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/11 18:23:18 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,4 +31,5 @@ size_t		ft_strlen(const char *s);
 char		*read_line(char *buffer, int fd);
 char		*current_line(char *buffer);
 void		*ft_calloc(size_t items, size_t size);
+size_t		ft_strlcat(char *dst, const char *src, size_t dstsize);
 #endif
