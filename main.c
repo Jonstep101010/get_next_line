@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jschwabe <jonas.paul.schwabe@gmail.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/19 10:38:53 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/04/19 10:48:26 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/11 12:40:39 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-int	main(int argc, char *argv[])
+/* int	main(int argc, char *argv[])
 {
 	char *line;
 	int fd;
@@ -33,4 +33,20 @@ int	main(int argc, char *argv[])
 		// printf("wd = %d\n", w_fd);
 		close(fd);
 	}
-}
+} */
+
+/* #include "get_next_line.h"
+
+int	main(void)
+{
+	int	fd;
+	char	*lineprint;
+
+	fd = open("empty.txt", O_RDONLY);
+	lineprint = get_next_line(fd);
+	// printf("\n%s\n", lineprint);
+	// printf("%s", get_next_line(fd));
+	close(fd);
+	free(lineprint);
+	return (0);
+} */

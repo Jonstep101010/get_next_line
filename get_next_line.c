@@ -3,19 +3,48 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jschwabe <jonas.paul.schwabe@gmail.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:25:50 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/10 19:58:03 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/11 12:39:00 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
+/*
+@brief read a line from a file descriptor
+@param fd file descriptor to read from
+@return line read from file descriptor
+@details check if line variable (NULL or '\0')
+@details is an empty string and no newline in buffer
+@details EOF reached or file is empty
+*/
+char	*get_next_line(int fd)
+{
+	char			*line;
+	static char		*buffer = NULL;
+
+	if (fd < 0 || BUFFER_SIZE < 1)
+		return (0);
+	buffer = read_line(buffer, fd);
+	if (!buffer)
+		return (NULL);
+	line = current_line(buffer);
+	if (*line == '\0' && !ft_strchr(buffer, '\n'))
+	{
+		free(line);
+		buffer = new_buffer(buffer);
+		return (NULL);
+	}
+	buffer = new_buffer(buffer);
+	return (line);
+}
+
 char	*read_line(char *buffer, int fd)
 {
+	char	*stash;
 	int		bytes_read;
-	char		*stash;
 
 	bytes_read = 1;
 	stash = malloc(sizeof(char) * (BUFFER_SIZE + 1));
@@ -44,7 +73,7 @@ char	*new_buffer(char *buffer)
 {
 	int			i;
 	int			n;
-	char	*new_buffer;
+	char		*new_buffer;
 
 	i = 0;
 	n = 0;
@@ -59,9 +88,7 @@ char	*new_buffer(char *buffer)
 	if (!new_buffer)
 		return (free(buffer), NULL);
 	while (buffer[n])
-	{
 		new_buffer[i++] = buffer[n++];
-	}
 	new_buffer[i] = '\0';
 	free(buffer);
 	return (new_buffer);
@@ -80,7 +107,7 @@ char	*current_line(char *s)
 	while (s[i] && s[i] != '\n')
 		i++;
 	if (s[i] == '\n')
-		i++;	
+		i++;
 	line = malloc(sizeof(char) * (i + 1));
 	if (!line)
 		return (NULL);
@@ -91,76 +118,7 @@ char	*current_line(char *s)
 		i++;
 	}
 	line[i] = s[i];
-	if (line[i])
+	if (line[i] == '\n')
 		line[++i] = '\0';
 	return (line);
 }
-
-
-/*
-@brief read a line from a file descriptor
-@param fd file descriptor to read from
-@reaturn line read from file descriptor
-*/
-char	*get_next_line(int fd)
-{
-	char			*line;
-	static char		*buffer = NULL;
-
-	if (fd < 0 || BUFFER_SIZE < 1)
-		return (0);
-	buffer = read_line(buffer, fd);
-	if (!buffer)
-		return (NULL);
-	line = current_line(buffer);
-	// Check if line variable (NULL or '\0') is an empty string and
-	// if there is no newline in the buffer variable
-	// this means the file is empty or the file has reached the end
-	if (line[0] == '\0' && !ft_strchr(buffer, '\n')){
-		free(line);
-		buffer = new_buffer(buffer);
-		return (NULL);
-	}
-	buffer = new_buffer(buffer);
-	return (line);
-}
-
-/* int	main(void)
-{
-	int	fd;
-	char	*lineprint;
-	
-	fd = open("1chartest.txt", O_RDONLY);
-	lineprint = get_next_line(fd);
-	printf("\n%s\n", lineprint);
-	// printf("%s", get_next_line(fd));
-	close(fd);
-	free(lineprint);
-	return (0);
-} */
-
-
-// char	*read_line(char *buffer, int fd)
-// {
-// 	int nbread;
-// 	nbread = read(fd, buffer, BUFFER_SIZE - 1);
-// 	return (buffer);
-// }
-
-// /*
-// @brief read a line from a file descriptor
-// @param fd file descriptor to read from
-// @reaturn line read from file descriptor
-// */
-// char	*get_next_line(int fd)
-// {
-// 	char			*line;
-// 	static char		*buffer;
-
-// 	if (fd < 0 || BUFFER_SIZE < 1)
-// 		return (0);
-// 	line = read_line(buffer, fd);
-// 	//free until buffer - return after newline
-// 	// free(line);
-// 	return (line);
-// }

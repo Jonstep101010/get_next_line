@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jschwabe <jonas.paul.schwabe@gmail.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:26:30 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/10 19:29:36 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/11 12:39:43 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ void	*ft_calloc(size_t items, size_t size)
 		return (0);
 	ptr = malloc(n);
 	if (!ptr)
-		return (0);
+		return (NULL);
 	cast = ptr;
 	i = 0;
 	while (i < n)
@@ -49,7 +49,7 @@ char	*ft_strchr(const char *str, int c)
 {
 	char	*ptr;
 
-	if (str == NULL)
+	if (!str)
 		return (NULL);
 	ptr = (char *)str;
 	if (*ptr == (char)c)
@@ -77,9 +77,7 @@ char	*ft_strjoin(char *s1, char *s2)
 			return (free(s1), NULL);
 		s1[0] = '\0';
 	}
-	// if (!s2)
-	// 	return (s1);
-	copy = (char *) ft_calloc(sizeof(char), ft_strlen(s1) + ft_strlen(s2) + 1);
+	copy = (char *) malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
 	if (!copy)
 		return (free(s1), NULL);
 	while (s1[++i] != '\0')
@@ -89,6 +87,3 @@ char	*ft_strjoin(char *s1, char *s2)
 	copy[i] = '\0';
 	return (free(s1), copy);
 }
-
-//strjoin needs to work if string does not exist
-//free string
