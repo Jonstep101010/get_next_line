@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:26:30 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/11 18:20:55 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/12 21:08:07 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,88 +22,71 @@ size_t	ft_strlen(const char *s)
 	return (i);
 }
 
-size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
-{
-	size_t	i_src;
-	size_t	i_dst;
-	size_t	dstlen;
-
-	i_src = 0;
-	dstlen = ft_strlen(dst);
-	i_dst = dstlen;
-	if (dstsize <= dstlen || dstsize == 0)
-		return (dstsize + ft_strlen(src));
-	while (src[i_src] != '\0' && (i_src < dstsize - dstlen - 1))
-	{
-		dst[i_dst++] = src[i_src++];
-	}
-	dst[i_dst] = '\0';
-	return (dstlen + ft_strlen(src));
-}
-
-void	*ft_calloc(size_t items, size_t size)
-{
-	void			*ptr;
-	size_t			n;
-	size_t			i;
-	unsigned char	*cast;
-
-	n = items * size;
-	if (items && (n) / items != size)
-		return (0);
-	ptr = malloc(n);
-	if (!ptr)
-		return (NULL);
-	cast = ptr;
-	i = 0;
-	while (i < n)
-	{
-		cast[i] = 0;
-		i++;
-	}
-	return (ptr);
-}
-
-char	*ft_strchr(const char *str, int c)
-{
-	char	*ptr;
-
-	if (!str)
-		return (NULL);
-	ptr = (char *)str;
-	c = (char) c;
-	if (*ptr == c)
-		return (ptr);
-	while (*ptr++)
-		if (*ptr == c)
-			return (ptr);
-	return (NULL);
-}
-
-char	*ft_strjoin(char *s1, char *s2)
+char	*ft_strdup(const char *s)
 {
 	char	*copy;
+	size_t	size;
 
-	if (!s1 && !s2)
-		return (NULL);
-	if (!s1)
-	{
-		s1 = malloc(sizeof(char));
-		if (!s1)
-			return (NULL);
-		s1[0] = '\0';
-	}
-	if (!s2)
-		return (s1);
-	copy = (char *)malloc((ft_strlen(s1) + ft_strlen(s2) + 1) * sizeof(char));
+	size = ft_strlen(s) + 1;
+	copy = malloc(size);
 	if (!copy)
-	{
-		free(s1);
-		return (NULL);
-	}
-	copy[0] = '\0';
-	ft_strlcat(copy, s1, ft_strlen(s1) + 1);
-	ft_strlcat(copy, s2, ft_strlen(s1) + ft_strlen(s2) + 1);
-	return (free(s1), copy);
+		return (0);
+	while (size-- && (copy))
+		copy[size] = s[size];
+	return (copy);
 }
 
+char	*copy_stash_buffer(char *buffer, char *stash)
+{
+	char	*tmp;
+
+	if (!buffer && stash)
+		return (ft_strdup(stash));
+	tmp = ft_strjoin(buffer, stash);
+	free_buf(&buffer, 0);
+	return (tmp);
+}
+
+char	*ft_strjoin(char const *s1, char const *s2)
+{
+	char	*copy;
+	char	*p;
+
+	copy = malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
+	if (!copy || !s1 || !s2)
+		return (NULL);
+	p = copy;
+	while (*s1)
+		*p++ = *s1++;
+	while (*s2)
+		*p++ = *s2++;
+	*p = '\0';
+	return (copy);
+}
+
+char	*ft_substr(char const *s, unsigned int start, size_t len)
+{
+	char	*substr;
+	size_t	slen;
+	size_t	i;
+
+	if (!s)
+		return (0);
+	slen = ft_strlen(s);
+	if (start >= slen)
+		return (ft_strdup(""));
+	if (len > slen - start)
+		len = slen - start;
+	substr = (char *) malloc(len + 1);
+	if (!substr)
+		return (0);
+	i = 0;
+	while (start < slen && i < len)
+	{
+		substr[i] = s[start];
+		start++;
+		i++;
+	}
+	substr[i] = '\0';
+	return (substr);
+}
