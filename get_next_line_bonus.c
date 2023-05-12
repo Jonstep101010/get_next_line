@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/04/18 14:25:50 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/13 01:00:34 by jschwabe         ###   ########.fr       */
+/*   Created: 2023/05/13 01:11:24 by jschwabe          #+#    #+#             */
+/*   Updated: 2023/05/13 01:31:17 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 static int	search_nl(char *s);
 
@@ -25,29 +25,30 @@ static int	search_nl(char *s);
 char	*get_next_line(int fd)
 {
 	char			*line;
-	static char		*buffer = NULL;
-	char			stash[BUFFER_SIZE + 1];
+	static char		*buffer[2048];
+	char			*stash;
 	long long		bytes_read;
 
 	bytes_read = BUFFER_SIZE;
 	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (free_buf(&buffer, 0));
+		return (free_buf(&buffer[fd], 0));
+	stash = malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	while (bytes_read > 0)
 	{
 		bytes_read = read(fd, stash, BUFFER_SIZE);
-		if (bytes_read == -1 || (bytes_read <= 0 && !buffer))
-			return (free_buf(&buffer, 0));
+		if (bytes_read == -1 || (bytes_read <= 0 && !buffer[fd]))
+			return (free_buf(&buffer[fd], 0));
 		stash[bytes_read] = '\0';
-		buffer = copy_stash_buffer(buffer, stash);
-		if (search_nl(buffer))
+		buffer[fd] = copy_stash_buffer(buffer[fd], stash);
+		if (search_nl(buffer[fd]))
 		{
-			line = parse_line(buffer);
+			line = parse_line(buffer[fd]);
 			if (!line)
-				return (free_buf(&buffer, 0));
-			return (buffer = replace_buffer(buffer), line);
+				return (free_buf(&buffer[fd], 0));
+			return (buffer[fd] = replace_buffer(buffer[fd]), line);
 		}
 	}
-	return (free_buf(&buffer, 1));
+	return (free_buf(&buffer[fd], 1));
 }
 
 /*

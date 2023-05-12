@@ -6,13 +6,13 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 16:30:48 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/04/18 16:49:51 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/13 00:51:23 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-int	main(void)
+/* int	main(void)
 {
 	int		fd;
 	char	*line;
@@ -26,3 +26,4 @@ int	main(void)
 	close(fd);
 	return (0);
 }
+ */
