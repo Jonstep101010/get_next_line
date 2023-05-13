@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/05/13 01:12:46 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/13 01:28:23 by jschwabe         ###   ########.fr       */
+/*   Created: 2023/04/18 14:26:18 by jschwabe          #+#    #+#             */
+/*   Updated: 2023/05/13 13:03:40 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,19 +19,16 @@
 # include <fcntl.h>
 # include <stdio.h>
 
-# include <sys/types.h>
-# include <sys/uio.h>
-
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 1024
+#  define BUFFER_SIZE 20
 # endif
 
 char		*get_next_line(int fd);
-char		*replace_buffer(char *buffer);
-void		*free_buf(char **buffer, int returnval);
-char		*copy_stash_buffer(char *buffer, char *stash);
+char		*ft_strchr(const char *str, int c);
+char		*new_buffer(char *buffer);
+char		*ft_strjoin(char *s1, char *s2);
 size_t		ft_strlen(const char *s);
-char		*ft_substr(char const *s, unsigned int start, size_t len);
-char		*parse_line(char *s);
-char		*ft_strdup(const char *s);
+char		*read_line(char *buffer, int fd);
+char		*current_line(char *buffer);
+void		*ft_calloc(size_t items, size_t size);
 #endif
