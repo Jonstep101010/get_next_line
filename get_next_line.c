@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:25:50 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/13 01:00:34 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/15 11:51:53 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,77 @@ static int	search_nl(char *s);
 ** @details is an empty string and no newline in buffer
 ** @details EOF reached or file is empty
 */
+/* static char	*read_buffer(int fd, char *buffer, char *tmp, char *line)
+{
+	long long	b_read;
+
+	b_read = BUFFER_SIZE;
+	while (b_read > 0)
+	{
+		b_read = read(fd, tmp, BUFFER_SIZE);
+		if (b_read == -1 || (b_read <= 0 && !buffer))
+			return (free_buf(&buffer, 0));
+		tmp[b_read] = '\0';
+		buffer = copy_stash_buffer(buffer, tmp);
+		if (search_nl(buffer))
+		{
+			line = parse_line(buffer);
+			if (!line)
+				return (free_buf(&buffer, 0));
+			buffer = replace_buffer(buffer);
+			return (line);
+		}
+	}
+	return (free_buf(&buffer, 1));
+}
+
+char	*get_next_line(int fd)
+{
+	static char	*buffer = NULL;
+	char		tmp[BUFFER_SIZE + 1];
+	char		*line;
+
+	line = NULL;
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (free_buf(&buffer, 0));
+	return (read_buffer(fd, buffer, tmp, line));
+} */
+
+/* char	*read_buffer(int fd, char *buffer)
+{
+	long long	b_read;
+	char		tmp[BUFFER_SIZE + 1];
+	char		*line;
+	
+	line = NULL;
+	b_read = BUFFER_SIZE;
+	while (b_read > 0)
+	{
+		b_read = read(fd, tmp, BUFFER_SIZE);
+		if (b_read == -1 || (b_read <= 0 && !buffer))
+			return (free_buf(&buffer));
+		tmp[b_read] = '\0';
+		buffer = copy_stash_buffer(buffer, tmp);
+		if (search_nl(buffer))
+		{
+			line = parse_line(buffer);
+			if (!line)
+				return (free_buf(&buffer));
+			buffer = rebuild_buffer(buffer);
+			return (line);
+		}
+	}
+	return (ret_line(&buffer));
+}
+
+char	*get_next_line(int fd)
+{
+	static char	*buffer = NULL;
+
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (free_buf(&buffer));
+	return (read_buffer(fd, buffer));
+} */
 char	*get_next_line(int fd)
 {
 	char			*line;
@@ -98,10 +169,7 @@ char	*replace_buffer(char *buffer)
 		return (free_buf(&buffer, 0));
 	n_buf = ft_substr(buffer, i + 1, ft_strlen(buffer));
 	if (!n_buf)
-	{
-		free_buf(&buffer, 0);
-		return (NULL);
-	}
+		return (free_buf(&buffer, 0));
 	free_buf(&buffer, 0);
 	return (n_buf);
 }

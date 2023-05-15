@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:26:30 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/13 12:48:56 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/15 11:50:00 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,22 +36,22 @@ char	*ft_strdup(const char *s)
 	return (copy);
 }
 
-static char	*ft_strjoin(char const *s1, char const *s2)
-{
-	char	*copy;
-	char	*p;
+// static char	*ft_strjoin(char const *s1, char const *s2)
+// {
+// 	char	*copy;
+// 	char	*p;
 
-	copy = malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
-	if (!copy || !s1 || !s2)
-		return (NULL);
-	p = copy;
-	while (*s1)
-		*p++ = *s1++;
-	while (*s2)
-		*p++ = *s2++;
-	*p = '\0';
-	return (copy);
-}
+// 	copy = malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
+// 	if (!copy || !s1 || !s2)
+// 		return (NULL);
+// 	p = copy;
+// 	while (*s1)
+// 		*p++ = *s1++;
+// 	while (*s2)
+// 		*p++ = *s2++;
+// 	*p = '\0';
+// 	return (copy);
+// }
 
 /*
 ** @brief free buffer and return value
@@ -60,16 +60,51 @@ static char	*ft_strjoin(char const *s1, char const *s2)
 ** @param stash content to return
 ** @return char* duplicate of stash
 */
-char	*copy_stash_buffer(char *buffer, char *stash)
+char	*copy_stash_buffer(char *s1, char *s2)
 {
-	char	*tmp;
+	char	*copy;
+	size_t	i;
+	size_t	x;
 
-	if (!buffer && stash)
-		return (ft_strdup(stash));
-	tmp = ft_strjoin(buffer, stash);
-	free_buf(&buffer, 0);
-	return (tmp);
+	if (!s1 && s2)
+		return (ft_strdup(s2));
+	i = -1;
+	x = 0;
+	if (!s1)
+		s1 = ft_strdup("");
+	copy = (char *) malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
+	if (!copy)
+		return (free(s1), NULL);
+	while (s1[++i] != '\0')
+		copy[i] = s1[i];
+	while (s2[x] != '\0')
+		copy[i++] = s2[x++];
+	copy[i] = '\0';
+	return (free_buf(&s1, 0), copy);
 }
+
+/* char	*copy_stash_buffer(char *s1, char *s2)
+{
+	char	*copy;
+	size_t	i;
+	size_t	x;
+
+	if (!s1 && s2)
+		return (ft_strdup(s2));
+	i = -1;
+	x = 0;
+	if (!s1)
+		s1 = ft_strdup("");
+	copy = (char *) malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
+	if (!copy)
+		return (free(s1), NULL);
+	while (s1[++i] != '\0')
+		copy[i] = s1[i];
+	while (s2[x] != '\0')
+		copy[i++] = s2[x++];
+	copy[i] = '\0';
+	return (free_buf(&s1), copy);
+} */
 
 /*
 ** @brief return a substring from a string
