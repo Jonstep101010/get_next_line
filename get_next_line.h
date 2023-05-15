@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:26:18 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/13 01:03:28 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/15 17:49:18 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,24 +14,15 @@
 # define GET_NEXT_LINE_H
 
 # include <stdlib.h>
-# include <stddef.h>
 # include <unistd.h>
-# include <fcntl.h>
-# include <stdio.h>
-
-# include <sys/types.h>
-# include <sys/uio.h>
 
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 16
 # endif
 
 char		*get_next_line(int fd);
-char		*replace_buffer(char *buffer);
 void		*free_buf(char **buffer, int returnval);
-char		*copy_stash_buffer(char *buffer, char *stash);
+
 size_t		ft_strlen(const char *s);
-char		*ft_substr(char const *s, unsigned int start, size_t len);
-char		*parse_line(char *s);
 char		*ft_strdup(const char *s);
 #endif

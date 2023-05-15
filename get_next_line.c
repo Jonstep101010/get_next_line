@@ -6,93 +6,25 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:25:50 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/15 11:51:53 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/15 17:51:54 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
+static char	*copy_stash_buffer(char *buf, char *stash);
+static char	*replace_buffer(char *buffer);
+static char	*parse_line(char *s);
 static int	search_nl(char *s);
 
 /*
 ** @brief read a line from a fildes
+** check if line variable (NULL or '\0')
+** is an empty string and no newline in buffer
+** EOF reached or file is empty
 ** @param fd file descriptor to read from
 ** @return line read from file descriptor
-** @details check if line variable (NULL or '\0')
-** @details is an empty string and no newline in buffer
-** @details EOF reached or file is empty
 */
-/* static char	*read_buffer(int fd, char *buffer, char *tmp, char *line)
-{
-	long long	b_read;
-
-	b_read = BUFFER_SIZE;
-	while (b_read > 0)
-	{
-		b_read = read(fd, tmp, BUFFER_SIZE);
-		if (b_read == -1 || (b_read <= 0 && !buffer))
-			return (free_buf(&buffer, 0));
-		tmp[b_read] = '\0';
-		buffer = copy_stash_buffer(buffer, tmp);
-		if (search_nl(buffer))
-		{
-			line = parse_line(buffer);
-			if (!line)
-				return (free_buf(&buffer, 0));
-			buffer = replace_buffer(buffer);
-			return (line);
-		}
-	}
-	return (free_buf(&buffer, 1));
-}
-
-char	*get_next_line(int fd)
-{
-	static char	*buffer = NULL;
-	char		tmp[BUFFER_SIZE + 1];
-	char		*line;
-
-	line = NULL;
-	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (free_buf(&buffer, 0));
-	return (read_buffer(fd, buffer, tmp, line));
-} */
-
-/* char	*read_buffer(int fd, char *buffer)
-{
-	long long	b_read;
-	char		tmp[BUFFER_SIZE + 1];
-	char		*line;
-	
-	line = NULL;
-	b_read = BUFFER_SIZE;
-	while (b_read > 0)
-	{
-		b_read = read(fd, tmp, BUFFER_SIZE);
-		if (b_read == -1 || (b_read <= 0 && !buffer))
-			return (free_buf(&buffer));
-		tmp[b_read] = '\0';
-		buffer = copy_stash_buffer(buffer, tmp);
-		if (search_nl(buffer))
-		{
-			line = parse_line(buffer);
-			if (!line)
-				return (free_buf(&buffer));
-			buffer = rebuild_buffer(buffer);
-			return (line);
-		}
-	}
-	return (ret_line(&buffer));
-}
-
-char	*get_next_line(int fd)
-{
-	static char	*buffer = NULL;
-
-	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (free_buf(&buffer));
-	return (read_buffer(fd, buffer));
-} */
 char	*get_next_line(int fd)
 {
 	char			*line;
@@ -122,11 +54,41 @@ char	*get_next_line(int fd)
 }
 
 /*
+** @brief free buffer and return value
+** 
+** @param buf buffer to free
+** @param stash content to return
+** @return char* duplicate of stash
+*/
+static char	*copy_stash_buffer(char *buf, char *stash)
+{
+	char	*copy;
+	size_t	i;
+	size_t	x;
+
+	if (!buf && stash)
+		return (ft_strdup(stash));
+	i = -1;
+	x = 0;
+	if (!buf)
+		buf = ft_strdup("");
+	copy = (char *) malloc(ft_strlen(buf) + ft_strlen(stash) + 1);
+	if (!copy)
+		return (free(buf), NULL);
+	while (buf[++i] != '\0')
+		copy[i] = buf[i];
+	while (stash[x] != '\0')
+		copy[i++] = stash[x++];
+	copy[i] = '\0';
+	return (free_buf(&buf, 0), copy);
+}
+
+/*
 ** @brief parse line from buffer
-** @param buf buffer parse from
+** @param buf buffer to parse from
 ** @return char* line parsed from buffer
 */
-char	*parse_line(char *buf)
+static char	*parse_line(char *buf)
 {
 	char	*line;
 	size_t	len;
@@ -152,59 +114,35 @@ char	*parse_line(char *buf)
 
 /*
 ** @brief copy content into new buffer, free old using free_buf
+** implements parts of substr funcionality for copying buffer
 ** @param buffer to replace
 ** @return new buffer, NULL on failure
 */
-char	*replace_buffer(char *buffer)
+static char	*replace_buffer(char *buffer)
 {
+	size_t	len;
 	size_t	i;
 	char	*n_buf;
 
+	len = 0;
 	i = 0;
 	if (!buffer)
 		return (NULL);
-	while (buffer[i] != '\n')
-		i++;
-	if (buffer[i + 1] == '\0')
+	while (buffer[len] != '\n')
+		len++;
+	if (buffer[len + 1] == '\0')
 		return (free_buf(&buffer, 0));
-	n_buf = ft_substr(buffer, i + 1, ft_strlen(buffer));
+	n_buf = malloc(sizeof(char) * (ft_strlen(buffer) - len));
 	if (!n_buf)
 		return (free_buf(&buffer, 0));
+	while (buffer[len + i + 1])
+	{
+		n_buf[i] = buffer[len + i + 1];
+		i++;
+	}
+	n_buf[i] = '\0';
 	free_buf(&buffer, 0);
 	return (n_buf);
-}
-
-/*
-** @brief handle buffer freeing and return values
-** 
-** @param buffer address of buffer to free
-** @param returnval 1 to return buffer, 0 to free buffer
-** @return char* if line return is expected\
-** @return void* if free or buffer == NULL
-*/
-void	*free_buf(char **buffer, int returnval)
-{
-	char	*line;
-
-	if (!*buffer)
-		return (NULL);
-	if (returnval == 0)
-	{
-		if (*buffer)
-		{
-			free(*buffer);
-			*buffer = NULL;
-		}
-		return (NULL);
-	}
-	else if (returnval == 1)
-	{
-		line = ft_strdup(*buffer);
-		free(*buffer);
-		*buffer = NULL;
-		return (line);
-	}
-	return (NULL);
 }
 
 /*
@@ -216,9 +154,7 @@ void	*free_buf(char **buffer, int returnval)
 */
 static int	search_nl(char *s)
 {
-	if (!s)
-		return (0);
-	while (*s != '\0')
+	while (s && *s != '\0')
 	{
 		if (*s == '\n')
 			return (1);
