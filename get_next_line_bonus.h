@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:26:18 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/13 13:03:40 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/17 19:38:50 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,14 @@
 # endif
 
 char		*get_next_line(int fd);
-char		*ft_strchr(const char *str, int c);
-char		*new_buffer(char *buffer);
-char		*ft_strjoin(char *s1, char *s2);
-size_t		ft_strlen(const char *s);
-char		*read_line(char *buffer, int fd);
-char		*current_line(char *buffer);
-void		*ft_calloc(size_t items, size_t size);
+char		*read_line(char *buffer, int fd, int *count, char **line);
+int			check_eol(char *buffer);
+
+char		*check_n_free(char *line);
+
+void		clean_buffer(char *buffer);
+char		*callocate(char **line, int *count, char *buffer, int marker);
+char		*ft_bzero(char *s, int size);
+void		*setnull(char *s);
+void		copy_line(int *count, char *stash, char **line);
 #endif

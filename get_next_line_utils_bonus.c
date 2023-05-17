@@ -6,84 +6,87 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:26:30 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/13 13:03:53 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/17 19:39:17 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line_bonus.h"
 
-size_t	ft_strlen(const char *s)
+void	*setnull(char *s)
 {
-	size_t	i;
+	free(s);
+	s = NULL;
+	return (NULL);
+}
+
+char	*check_n_free(char *line)
+{
+	char	*tmp;
+	int		i;
+
+	if (!line)
+		return (NULL);
+	i = 0;
+	while (line[i] != 0)
+		i++;
+	tmp = malloc((i + 1) * sizeof(char));
+	if (!tmp)
+		return (free(line), line = NULL);
+	ft_bzero(tmp, i);
+	i = 0;
+	while (line[i] != 0)
+	{
+		tmp[i] = line[i];
+		i++;
+	}
+	free(line);
+	line = NULL;
+	return (tmp);
+}
+
+void	clean_buffer(char *buffer)
+{
+	int	i;
+	int	start;
 
 	i = 0;
-	while (s[i] != '\0')
+	start = 0;
+	while (buffer[check_eol(buffer)] != '\n' && i < BUFFER_SIZE)
+		buffer[i++] = '\0';
+	if (buffer[check_eol(buffer)] == '\n')
+		start = check_eol(buffer) + 1;
+	while (i < BUFFER_SIZE)
+	{
+		if (start + i <= BUFFER_SIZE)
+			buffer[i] = buffer[start + i];
 		i++;
+	}
+	buffer[BUFFER_SIZE] = 0;
+}
+
+int	check_eol(char *buffer)
+{
+	int	i;
+
+	i = 0;
+	while (buffer[i] != '\0')
+	{
+		if (buffer[i] == '\n')
+			return (i);
+		i++;
+	}
 	return (i);
 }
 
-void	*ft_calloc(size_t items, size_t size)
+char	*ft_bzero(char *s, int size)
 {
-	void			*ptr;
-	size_t			n;
-	size_t			i;
-	unsigned char	*cast;
+	int	i;
 
-	n = items * size;
-	if (items && (n) / items != size)
-		return (0);
-	ptr = malloc(n);
-	if (!ptr)
-		return (NULL);
-	cast = ptr;
 	i = 0;
-	while (i < n)
+	while (i <= size)
 	{
-		cast[i] = 0;
+		s[i] = 0;
 		i++;
 	}
-	return (ptr);
-}
-
-char	*ft_strchr(const char *str, int c)
-{
-	char	*ptr;
-
-	if (!str)
-		return (NULL);
-	ptr = (char *)str;
-	if (*ptr == (char)c)
-		return (ptr);
-	while (*ptr++)
-		if (*ptr == (char)c)
-			return (ptr);
-	return (0);
-}
-
-char	*ft_strjoin(char *s1, char *s2)
-{
-	char	*copy;
-	size_t	i;
-	size_t	x;
-
-	i = -1;
-	x = 0;
-	if (!s1 && !s2)
-		return (NULL);
-	if (!s1)
-	{
-		s1 = malloc(sizeof(char));
-		if (!s1)
-			return (free(s1), NULL);
-		s1[0] = '\0';
-	}
-	copy = (char *) malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
-	if (!copy)
-		return (free(s1), NULL);
-	while (s1[++i] != '\0')
-		copy[i] = s1[i];
-	while (s2[x] != '\0')
-		copy[i++] = s2[x++];
-	copy[i] = '\0';
-	return (free(s1), copy);
+	return (s);
 }
