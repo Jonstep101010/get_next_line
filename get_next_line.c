@@ -6,16 +6,13 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:25:50 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/16 17:48:25 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/18 23:24:28 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static char	*copy_stash_buffer(char *buf, char *stash);
-static char	*replace_buffer(char *buffer);
-static char	*parse_line(char *s);
-static int	search_nl(char *s);
+static void	parse_line(int *count, char *stash, char **line);
 
 /*
 ** @brief read a line from a fildes
@@ -28,88 +25,83 @@ static int	search_nl(char *s);
 char	*get_next_line(int fd)
 {
 	char			*line;
-	static char		*buffer = NULL;
-	char			stash[BUFFER_SIZE + 1];
-	long long		bytes_read;
+	static char		buffer[BUFFER_SIZE + 1];
+	int				counter;
 
-	bytes_read = BUFFER_SIZE;
-	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (free_buf(&buffer, 0));
-	while (bytes_read > 0)
+	counter = 0;
+	if (fd < 0 || BUFFER_SIZE < 1)
 	{
-		bytes_read = read(fd, stash, BUFFER_SIZE);
-		if (bytes_read == -1 || (bytes_read <= 0 && !buffer))
-			return (free_buf(&buffer, 0));
-		stash[bytes_read] = '\0';
-		buffer = copy_stash_buffer(buffer, stash);
-		if (search_nl(buffer))
-		{
-			line = parse_line(buffer);
-			if (!line)
-				return (free_buf(&buffer, 0));
-			return (buffer = replace_buffer(buffer), line);
-		}
+		return (NULL);
 	}
-	return (free_buf(&buffer, 1));
+	while (buffer[counter] && buffer[counter] != '\n')
+	{
+		counter++;
+	}
+	if (counter <= BUFFER_SIZE && buffer[counter] == '\n')
+	{
+		callocate(&line, (int *) BUFFER_SIZE, buffer, 1);
+	}
+	else
+	{
+		read_line(buffer, fd, &counter, &line);
+	}
+	return (check_n_free(line));
 }
 
 /*
-** @brief free buffer and return value
+** @brief read line while stash has no newline
 ** 
-** @param buf buffer to free
-** @param stash content to return
-** @return char* duplicate of stash
+** @param buf to copy into from stash
+** @param fd to read from
+** @param count for line index/read bytes
+** @param line address to store line
+** @return line read from file descriptor
 */
-static char	*copy_stash_buffer(char *buf, char *stash)
+char	*read_line(char *buf, int fd, int *count, char **line)
 {
-	char	*copy;
-	size_t	i;
-	size_t	x;
+	char	stash[BUFFER_SIZE + 1];
+	int		b_r;
+	int		i;
 
-	if (!buf && stash)
-		return (ft_strdup(stash));
-	i = -1;
-	x = 0;
-	if (!buf)
-		buf = ft_strdup("");
-	copy = (char *) malloc(ft_strlen(buf) + ft_strlen(stash) + 1);
-	if (!copy)
-		return (free(buf), NULL);
-	while (buf[++i] != '\0')
-		copy[i] = buf[i];
-	while (stash[x] != '\0')
-		copy[i++] = stash[x++];
-	copy[i] = '\0';
-	return (free_buf(&buf, 0), copy);
+	ft_bzero(stash, BUFFER_SIZE);
+	b_r = read(fd, stash, BUFFER_SIZE);
+	if (b_r > 0)
+		*count += BUFFER_SIZE;
+	if (b_r < 0 || (b_r == 0 && *count == 0))
+		return (ft_bzero(buf, BUFFER_SIZE), *line = NULL);
+	if (stash[eol(stash)] == '\n' || (b_r == 0 && *count != 0))
+	{
+		if (!callocate(line, count, buf, 0))
+			return (NULL);
+		i = -1;
+		while (++i < BUFFER_SIZE)
+			buf[i] = stash[i];
+		clean_buffer(buf);
+	}
+	if (stash[eol(stash)] != '\n' && b_r != 0
+		&& !read_line(buf, fd, count, line))
+		return (NULL);
+	if (*stash)
+		parse_line(count, stash, line);
+	return (*line);
 }
 
 /*
-** @brief parse line from buffer
-** @param buf buffer to parse from
-** @return char* line parsed from buffer
+** @brief copy from stash into line, including newline
+** @param count for line index
+** @param stash to copy from (tmp buffer for read data)
+** @param line to copy into
 */
-static char	*parse_line(char *buf)
+static void	parse_line(int *count, char *stash, char **line)
 {
-	char	*line;
-	size_t	len;
-	size_t	index;
+	int		i;
 
-	len = 0;
-	if (!buf)
-		return (free_buf(&buf, 0));
-	while (buf[len] != '\n')
-		len++;
-	line = malloc(sizeof(char) * (len + 2));
-	if (!line)
-		return (free_buf(&line, 0));
-	index = 0;
-	while (index < len + 1)
-	{
-		line[index] = buf[index];
-		index++;
-	}
-	line[index] = '\0';
-	return (line);
+	i = -1;
+	*count -= BUFFER_SIZE;
+	while (stash[++i] && stash[i] != '\n' && i < BUFFER_SIZE)
+		(*line)[*count + i] = stash[i];
+	if (stash[i] == '\n')
+		*(*line + *count + i) = '\n';
 }
 
 /*
@@ -118,47 +110,21 @@ static char	*parse_line(char *buf)
 ** @param buffer to replace
 ** @return new buffer, NULL on failure
 */
-static char	*replace_buffer(char *buffer)
+void	clean_buffer(char *buffer)
 {
-	size_t	len;
-	size_t	i;
-	char	*n_buf;
+	int	i;
+	int	nl;
 
-	len = 0;
+	nl = eol(buffer);
 	i = 0;
-	if (!buffer)
-		return (NULL);
-	while (buffer[len] != '\n')
-		len++;
-	if (buffer[len + 1] == '\0')
-		return (free_buf(&buffer, 0));
-	n_buf = malloc(sizeof(char) * (ft_strlen(buffer) - len));
-	if (!n_buf)
-		return (free_buf(&buffer, 0));
-	while (buffer[len + i + 1])
+	while (buffer[nl] != '\n' && i < BUFFER_SIZE)
+		buffer[i++] = 0;
+	if (buffer[nl] == '\n')
+		nl += 1;
+	while (i <= BUFFER_SIZE - nl)
 	{
-		n_buf[i] = buffer[len + i + 1];
+		buffer[i] = buffer[nl + i];
 		i++;
 	}
-	n_buf[i] = '\0';
-	free_buf(&buffer, 0);
-	return (n_buf);
-}
-
-/*
-** @brief return 1 if newline in string
-** 
-** @param s buffer to search
-** @return 0 no newline\
-** @return 1 newline contained
-*/
-static int	search_nl(char *s)
-{
-	while (s && *s != '\0')
-	{
-		if (*s == '\n')
-			return (1);
-		s++;
-	}
-	return (0);
+	buffer[i] = 0;
 }
