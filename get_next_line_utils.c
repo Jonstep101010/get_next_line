@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:26:30 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/18 23:25:01 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/19 12:13:09 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,36 +62,26 @@ int	eol(char *s)
 }
 
 /*
-** @brief handle buffer freeing and return values
-** 
-** @param buffer address of buffer to free
-** @param returnval 1 to also return buffer duplicate, 0 to free buffer
-** @return char* if line return is expected\
-** @return void* if free or buffer == NULL
+** @brief copy content into new buffer, free old using free_buf
+** implements parts of substr funcionality for copying buffer
+** @param buffer to replace
+** @return new buffer, NULL on failure
 */
-
-char	*callocate(char **line, int *count, char *buffer, int marker)
+void	clean_buffer(char *buffer)
 {
 	int	i;
+	int	nl;
 
-	i = -1;
-	if (marker == 1)
+	nl = eol(buffer);
+	i = 0;
+	while (buffer[nl] != '\n' && i < BUFFER_SIZE)
+		buffer[i++] = 0;
+	if (buffer[nl] == '\n')
+		nl += 1;
+	while (i <= BUFFER_SIZE - nl)
 	{
-		*line = malloc((BUFFER_SIZE + 1) * sizeof(char));
-		if (!*line)
-			return (NULL);
-		ft_bzero(*line, BUFFER_SIZE);
-		while (buffer[++i] != '\n')
-			*(*line + i) = buffer[i];
-		*(*line + i) = buffer[i];
-		clean_buffer(buffer);
-		return ((void *)line);
+		buffer[i] = buffer[nl + i];
+		i++;
 	}
-	*line = malloc((*count + 1) * sizeof(char));
-	if (!*line)
-		return (NULL);
-	ft_bzero(*line, *count);
-	while (buffer[++i])
-		*(*line + i) = buffer[i];
-	return (*line);
+	buffer[i] = 0;
 }
