@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:26:30 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/19 12:13:09 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/23 17:29:11 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ void	clean_buffer(char *buffer)
 		buffer[i++] = 0;
 	if (buffer[nl] == '\n')
 		nl += 1;
-	while (i <= BUFFER_SIZE - nl)
+	while (i < BUFFER_SIZE - nl)
 	{
 		buffer[i] = buffer[nl + i];
 		i++;
