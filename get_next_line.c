@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:25:50 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/19 13:07:01 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/29 20:23:04 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ char	*get_next_line(int fd)
 		line = malloc((BUFFER_SIZE + 1) * sizeof(char));
 		if (!line)
 			return (NULL);
-		ft_bzero(line, BUFFER_SIZE);
+		str_bzero(line, BUFFER_SIZE);
 		i = -1;
 		while (buffer[++i] != '\n')
 			line[i] = buffer[i];
@@ -65,7 +65,6 @@ static void	parse_line(int *count, char *stash, char **line)
 		(*line)[*count + i] = stash[i];
 	if (stash[i] == '\n')
 		*(*line + *count + i) = '\n';
-	i = -1;
 }
 
 /*
@@ -84,7 +83,7 @@ static char	*callocate(char **line, int *count, char *buffer)
 	*line = malloc((*count + 1) * sizeof(char));
 	if (!*line)
 		return (NULL);
-	ft_bzero(*line, *count);
+	str_bzero(*line, *count);
 	while (buffer[++i] != 0)
 		*(*line + i) = buffer[i];
 	return (*line);
@@ -105,12 +104,12 @@ char	*read_line(char *buf, int fd, int *count, char **line)
 	int		b_r;
 	int		i;
 
-	ft_bzero(stash, BUFFER_SIZE);
+	str_bzero(stash, BUFFER_SIZE);
 	b_r = read(fd, stash, BUFFER_SIZE);
 	if (b_r > 0)
 		*count += BUFFER_SIZE;
 	if (b_r < 0 || (b_r == 0 && *count == 0))
-		return (ft_bzero(buf, BUFFER_SIZE), *line = NULL);
+		return (str_bzero(buf, BUFFER_SIZE), *line = NULL);
 	if (stash[eol(stash)] == '\n' || (b_r == 0 && *count != 0))
 	{
 		if (!callocate(line, count, buf))

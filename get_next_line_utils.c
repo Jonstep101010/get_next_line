@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:26:30 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/23 17:29:11 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/29 18:37:06 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ char	*check_n_free(char *line)
 	tmp = malloc((i + 1) * sizeof(char));
 	if (!tmp)
 		return (free(line), line = NULL);
-	ft_bzero(tmp, i);
+	str_bzero(tmp, i);
 	i = 0;
 	while (line[i] != 0)
 	{
@@ -37,7 +37,7 @@ char	*check_n_free(char *line)
 	return (tmp);
 }
 
-char	*ft_bzero(char *s, int n)
+char	*str_bzero(char *s, int n)
 {
 	int	i;
 
@@ -83,5 +83,5 @@ void	clean_buffer(char *buffer)
 		buffer[i] = buffer[nl + i];
 		i++;
 	}
-	buffer[i] = 0;
+	buffer[i] = '\0';
 }
