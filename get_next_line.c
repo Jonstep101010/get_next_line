@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:25:50 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/29 20:23:04 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/31 19:33:58 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ static void	parse_line(int *count, char *stash, char **line)
 	while (stash[++i] && stash[i] != '\n' && i < BUFFER_SIZE)
 		(*line)[*count + i] = stash[i];
 	if (stash[i] == '\n')
-		*(*line + *count + i) = '\n';
+		(*line)[*count + i] = '\n';
 }
 
 /*
