@@ -6,11 +6,13 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:25:50 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/31 19:33:58 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/05/31 22:18:33 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+
+static char	*callochar(char **line, char *buffer);
 
 /*
 ** @brief read a line from a fildes
@@ -25,8 +27,8 @@ char	*get_next_line(int fd)
 	char			*line;
 	static char		buffer[BUFFER_SIZE + 1];
 	int				counter;
-	int				i;
 
+	line = NULL;
 	counter = 0;
 	if (fd < 0 || BUFFER_SIZE < 1)
 		return (NULL);
@@ -34,19 +36,36 @@ char	*get_next_line(int fd)
 		counter++;
 	if (counter <= BUFFER_SIZE && buffer[counter] == '\n')
 	{
-		line = malloc((BUFFER_SIZE + 1) * sizeof(char));
+		callochar(&line, buffer);
 		if (!line)
 			return (NULL);
-		str_bzero(line, BUFFER_SIZE);
-		i = -1;
-		while (buffer[++i] != '\n')
-			line[i] = buffer[i];
-		line[i] = buffer[i];
-		clean_buffer(buffer);
 	}
 	else
 		read_line(buffer, fd, &counter, &line);
 	return (check_n_free(line));
+}
+
+/*
+** @brief allocate line and copy buffer into it
+** 
+** @param line 
+** @param buffer 
+** @return  
+*/
+static char	*callochar(char **line, char *buffer)
+{
+	int		i;
+
+	i = -1;
+	*line = malloc((BUFFER_SIZE + 1) * sizeof(char));
+	if (!*line)
+		return (NULL);
+	str_bzero(*line, BUFFER_SIZE);
+	while (buffer[++i] != '\n')
+		*(*line + i) = buffer[i];
+	*(*line + i) = buffer[i];
+	clean_buffer(buffer);
+	return (*line);
 }
 
 /*
