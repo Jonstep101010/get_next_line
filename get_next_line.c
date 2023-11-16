@@ -6,31 +6,29 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:25:50 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/11/16 18:32:44 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/11/16 20:18:53 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static char	*check_n_free(char *line, int i)
+static char	*check_free(char *line)
 {
 	char	*tmp;
+	int		i;
 
 	if (!line)
 		return (NULL);
-	while (line[i] != 0)
-	{
+	for (i = 0; line[i] != 0;)
 		i++;
-	}
-	if (!ft_calloc(&tmp, i + 1))
-		return (free(line), NULL);
-	i = -1;
-	while (line[++i] != 0)
+	if (ft_calloc(&tmp, i + 1))
 	{
-		tmp[i] = line[i];
+		for (int i = -1; line[++i] != 0;)
+			tmp[i] = line[i];
+		free(line);
+		return (tmp);
 	}
-	free(line);
-	return (tmp);
+	return (free(line), NULL);
 }
 
 static char	*loop(int fd, char **line)
@@ -54,7 +52,7 @@ static char	*loop(int fd, char **line)
 	}
 	else
 		read_line(buffer, fd, &counter, line);
-	return (check_n_free(*line, 0));
+	return (check_free(*line));
 }
 
 char	*get_next_line(int fd)
@@ -65,4 +63,18 @@ char	*get_next_line(int fd)
 	if (fd < 0 || BUFFER_SIZE < 1)
 		return (NULL);
 	return (loop(fd, &line));
+}
+
+void	clean_buffer(char *buffer)
+{
+	int	i;
+	int	nl_index = 0;
+
+	i = -1;
+	while (buffer[nl_index] && buffer[nl_index] != '\n')
+		nl_index++;
+	buffer[nl_index] != '\n' ? buffer[nl_index++] = 0 : nl_index++;
+	while (++i < BUFFER_SIZE - nl_index)
+		buffer[i] = buffer[nl_index + i];
+	buffer[i] = '\0';
 }
