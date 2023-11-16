@@ -6,64 +6,33 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:26:30 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/06/01 20:30:28 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/11/16 14:31:07 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*mallonize(char **line, size_t size)
+void	*ft_memset(void *str, int c, size_t n)
+{
+	size_t			i;
+	unsigned char	*ptr;
+
+	ptr = str;
+	i = 0;
+	while (i < n)
+	{
+		ptr[i] = c;
+		i++;
+	}
+	return (str);
+}
+
+char	*ft_calloc(char **line, size_t size)
 {
 	*line = malloc(size * sizeof(char));
 	if (!*line)
 		return (NULL);
-	str_bzero(*line, size - 1);
-	return (*line);
-}
-
-char	*check_n_free(char *line, int i)
-{
-	char	*tmp;
-
-	if (!line)
-		return (NULL);
-	while (line[i] != 0)
-	{
-		i++;
-	}
-	if (!mallonize(&tmp, i + 1))
-		return (free(line), NULL);
-	i = -1;
-	while (line[++i] != 0)
-	{
-		tmp[i] = line[i];
-	}
-	free(line);
-	return (tmp);
-}
-
-char	*str_bzero(char *s, int n)
-{
-	int	i;
-
-	i = 0;
-	while (i <= n)
-		s[i++] = 0;
-	return (s);
-}
-
-int	eol(char *s)
-{
-	int	i;
-
-	i = 0;
-	while (s[i] != '\0')
-	{
-		if (s[i] == '\n')
-			return (i);
-		i++;
-	}
-	return (i);
+	return (ft_memset(*line, 0, size));
 }
 
 /*
@@ -74,11 +43,11 @@ int	eol(char *s)
 */
 void	clean_buffer(char *buffer)
 {
-	int	i;
-	int	nl;
+	int	i = 0;
+	int	nl = 0;
 
-	nl = eol(buffer);
-	i = 0;
+	while (buffer[nl] && buffer[nl] != '\n')
+		++nl;
 	if (buffer[nl] != '\n')
 		buffer[i++] = 0;
 	else

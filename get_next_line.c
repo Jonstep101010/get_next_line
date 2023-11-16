@@ -6,12 +6,56 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:25:50 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/06/01 21:57:50 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/11/16 17:13:40 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
+char	*check_n_free(char *line, int i)
+{
+	char	*tmp;
+
+	if (!line)
+		return (NULL);
+	while (line[i] != 0)
+	{
+		i++;
+	}
+	if (!ft_calloc(&tmp, i + 1))
+		return (free(line), NULL);
+	i = -1;
+	while (line[++i] != 0)
+	{
+		tmp[i] = line[i];
+	}
+	free(line);
+	return (tmp);
+}
+
+char	*str_bzero(char *s, int n)
+{
+	int	i;
+
+	i = 0;
+	while (i <= n)
+		s[i++] = 0;
+	return (s);
+}
+
+int	eol(char *s)
+{
+	int	i;
+
+	i = 0;
+	while (s[i] != '\0')
+	{
+		if (s[i] == '\n')
+			return (i);
+		i++;
+	}
+	return (i);
+}
 /*
 ** @brief read a line from a fildes
 ** check if line variable (NULL or '\0')
@@ -35,7 +79,7 @@ char	*get_next_line(int fd)
 		counter++;
 	if (buffer[counter] == '\n')
 	{
-		if (!mallonize(&line, BUFFER_SIZE + 1))
+		if (!ft_calloc(&line, BUFFER_SIZE + 1))
 			return (NULL);
 		i = -1;
 		while (buffer[++i] && buffer[i] != '\n')
@@ -50,17 +94,17 @@ char	*get_next_line(int fd)
 
 /*
 ** @brief copy buffer into line and clean buffer
-** 
-** @param line 
-** @param buffer 
-** @param stash 
-** @return  
+**
+** @param line
+** @param buffer
+** @param stash
+** @return
 */
 static char	*copy_clean(char **line, int *count, char *buffer, char *stash)
 {
 	int		i;
 
-	if (!mallonize(line, *count + 1))
+	if (!ft_calloc(line, *count + 1))
 		return (NULL);
 	i = -1;
 	while (buffer[++i] != 0)
@@ -74,10 +118,10 @@ static char	*copy_clean(char **line, int *count, char *buffer, char *stash)
 
 /*
 ** @brief parse line from stash
-** 
-** @param count 
-** @param line 
-** @param stash 
+**
+** @param count
+** @param line
+** @param stash
 ** @return line
 */
 static char	*parse_line(int *count, char **line, char *stash)
@@ -95,8 +139,8 @@ static char	*parse_line(int *count, char **line, char *stash)
 
 /*
 ** @brief check if buffer has a newline
-** 
-** @param stash 
+**
+** @param stash
 ** @return true	- if newline in buffer
 */
 static bool	nl(char *stash)
@@ -113,7 +157,7 @@ static bool	nl(char *stash)
 
 /*
 ** @brief read line while stash has no newline
-** 
+**
 ** @param buf to copy into from stash
 ** @param fd to read from
 ** @param count for line index/read bytes
@@ -125,11 +169,11 @@ char	*read_line(char *buf, int fd, int *count, char **line)
 	char	stash[BUFFER_SIZE + 1];
 	int		rd;
 
-	rd = read(fd, str_bzero(stash, BUFFER_SIZE), BUFFER_SIZE);
+	rd = read(fd, ft_memset(stash, 0, BUFFER_SIZE), BUFFER_SIZE);
 	if (rd > 0)
 		*count += BUFFER_SIZE;
 	else if (rd < 0)
-		return (str_bzero(buf, BUFFER_SIZE), NULL);
+		return (ft_memset(buf, 0, BUFFER_SIZE), NULL);
 	if ((((nl(stash) || (rd == 0 && *count != 0))
 				&& (!copy_clean(line, count, buf, stash)))
 			|| (!nl(stash) && rd != 0
