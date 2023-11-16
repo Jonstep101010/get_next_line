@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:26:18 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/11/16 14:18:08 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/11/16 17:53:07 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,11 @@
 
 char		*get_next_line(int fd);
 char		*read_line(char *buf, int fd, int *counter, char **line);
-void		clean_buffer(char *buffer);
-char		*check_n_free(char *line, int i);
-int			eol(char *s);
-char		*ft_calloc(char **line, size_t size);
+
+/* -------------------------------------------------------------------------- */
+/*                                    utils                                   */
+/* -------------------------------------------------------------------------- */
 void		*ft_memset(void *str, int c, size_t n);
+char		*ft_calloc(char **line, size_t size);
+void		clean_buffer(char *buffer);
 #endif
