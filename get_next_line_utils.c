@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:26:30 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/11/16 20:18:40 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/11/16 20:25:16 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,16 +14,11 @@
 
 static void	*ft_memset(void *str, int c, size_t n)
 {
-	size_t			i;
 	unsigned char	*ptr;
 
 	ptr = str;
-	i = 0;
-	while (i < n)
-	{
+	for (size_t i = 0; i < n; i++)
 		ptr[i] = c;
-		i++;
-	}
 	return (str);
 }
 
@@ -39,9 +34,8 @@ static char	*parse_line(int *count, char **line, char *stash)
 {
 	int		i;
 
-	i = -1;
 	*count -= BUFFER_SIZE;
-	while (stash[++i] && stash[i] != '\n' && i < BUFFER_SIZE)
+	for (i = -1; stash[++i] != '\n' && i < BUFFER_SIZE;)
 		(*line)[*count + i] = stash[i];
 	if (stash[i] == '\n')
 		(*line)[*count + i] = '\n';
@@ -54,7 +48,7 @@ static char	*copy_clean(char **line, int *count, char *buffer, char *stash)
 		return (NULL);
 	// copy buffer into line
 	for (int i = -1; buffer[++i] != 0;)
-		*(*line + i) = buffer[i];
+		(*line)[i] = buffer[i];
 	// copy stash into buffer
 	for (int i = -1; ++i < BUFFER_SIZE;)
 		buffer[i] = stash[i];
