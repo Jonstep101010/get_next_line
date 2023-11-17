@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:26:30 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/11/17 13:04:43 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/11/17 18:01:56 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,62 +30,48 @@ char	*ft_calloc(char **line, size_t size)
 	return (ft_memset(*line, 0, size));
 }
 
-static void	parse_line(int *count, char **line, char *stash)
-{
-	int		i;
-
-	*count -= BUFFER_SIZE;
-	// get index of newline
-	for (i = -1; stash[++i] != '\n' && i < BUFFER_SIZE;)
-		;
-	// copy stash into line
-	copy_buffer(stash, *line + *count, i - 1);
-	// copy newline into line
-	if (stash[i] == '\n')
-		(*line)[*count + i] = '\n';
-}
-
-static char	*copy_clean(char **line, int *count, char *buffer, char *stash)
-{
-	if (!ft_calloc(line, *count + 1))
-		return (NULL);
-	// copy buffer into line
-	for (int i = -1; buffer[++i] != 0;)
-		(*line)[i] = buffer[i];
-	// copy stash into buffer
-	copy_buffer(stash, buffer, BUFFER_SIZE - 1);
-	clean_buffer(buffer);
-	return (*line);
-}
-
 /**
- * @brief read line while stash has no newline
+ * @brief read line while tmp has no newline
  * @return line read from file descriptor /NULL
  */
 char	*read_line(char *buf, int fd, int *count, char **line)
 {
-	char	stash[BUFFER_SIZE + 1];
+	char	tmp[BUFFER_SIZE + 1];
 	int		rd;
 	int		i;
 
-	rd = read(fd, ft_memset(stash, 0, BUFFER_SIZE), BUFFER_SIZE);
+	rd = read(fd, ft_memset(tmp, 0, BUFFER_SIZE), BUFFER_SIZE);
 	if (rd > 0)
 		*count += BUFFER_SIZE;
 	if (rd < 0)
 		return (ft_memset(buf, 0, BUFFER_SIZE));
 	i = 0;
-	while (i < BUFFER_SIZE && stash[i] != '\n')
+	while (i < BUFFER_SIZE && tmp[i] != '\n')
 		i++;
-	if (stash[i] == '\n')
-		i = -1;
-	// data left in stash or EOF and data in buffer
-	if ((i == -1 || (rd == 0 && *count != 0))
-		&& !copy_clean(line, count, buf, stash))
-		return (NULL);
-	// data left in stash or EOF and no data in buffer
-	else if (i >= 0 && rd != 0 && !read_line(buf, fd, count, line))
+	// data left in tmp or EOF and data in buffer
+	if (tmp[i] == '\n' || (rd == 0 && *count != 0))
+	{
+		if (!ft_calloc(line, *count + 1))
+			return (NULL);
+		for (int x = -1; buf[++x] != '\0';)
+			(*line)[x] = buf[x];
+		copy_buffer(tmp, buf, BUFFER_SIZE - 1);
+		clean_buffer(buf);
+	}
+	// data left in tmp or EOF and no data in buffer
+	if (tmp[i] != '\n' && rd != 0 && !read_line(buf, fd, count, line))
 		return (NULL);
 	else if (rd > 0)
-		parse_line(count, line, stash);
+	{
+		*count -= BUFFER_SIZE;
+		// get index of newline
+		for (i = -1; tmp[++i] != '\n' && i < BUFFER_SIZE;)
+			;
+		// copy tmp into line up to newline
+		copy_buffer(tmp, *line + *count, i - 1);
+		// copy newline into line
+		if (tmp[i] == '\n')
+			(*line)[*count + i] = '\n';
+	}
 	return (*line);
 }
