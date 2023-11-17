@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:25:50 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/11/16 20:18:53 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/11/17 11:30:28 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,23 +31,28 @@ static char	*check_free(char *line)
 	return (free(line), NULL);
 }
 
+int	copy_buffer(char *src, char *dst, int range)
+{
+	int	i;
+
+	for (i = -1; ++i <= range;)
+		dst[i] = src[i];
+	return (i);
+}
+
 static char	*loop(int fd, char **line)
 {
 	static char		buffer[BUFFER_SIZE + 1];
 	int				counter;
-	int				i;
 
 	counter = 0;
 	while (counter <= BUFFER_SIZE && buffer[counter] && buffer[counter] != '\n')
 		counter++;
-	if (buffer[counter] == '\n' && !ft_calloc(line, BUFFER_SIZE + 1))
-		return (NULL);
 	if (buffer[counter] == '\n')
 	{
-		i = -1;
-		while (buffer[++i] && buffer[i] != '\n')
-			*(*line + i) = buffer[i];
-		*(*line + i) = buffer[i];
+		if (!ft_calloc(line, BUFFER_SIZE + 1))
+			return (NULL);
+		copy_buffer(buffer, *line, counter);
 		clean_buffer(buffer);
 	}
 	else
@@ -67,14 +72,10 @@ char	*get_next_line(int fd)
 
 void	clean_buffer(char *buffer)
 {
-	int	i;
 	int	nl_index = 0;
 
-	i = -1;
 	while (buffer[nl_index] && buffer[nl_index] != '\n')
 		nl_index++;
 	buffer[nl_index] != '\n' ? buffer[nl_index++] = 0 : nl_index++;
-	while (++i < BUFFER_SIZE - nl_index)
-		buffer[i] = buffer[nl_index + i];
-	buffer[i] = '\0';
+	copy_buffer(buffer + nl_index, buffer, BUFFER_SIZE - nl_index);
 }

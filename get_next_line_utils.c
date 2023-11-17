@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:26:30 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/11/16 20:25:16 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/11/17 13:04:43 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,16 +30,19 @@ char	*ft_calloc(char **line, size_t size)
 	return (ft_memset(*line, 0, size));
 }
 
-static char	*parse_line(int *count, char **line, char *stash)
+static void	parse_line(int *count, char **line, char *stash)
 {
 	int		i;
 
 	*count -= BUFFER_SIZE;
+	// get index of newline
 	for (i = -1; stash[++i] != '\n' && i < BUFFER_SIZE;)
-		(*line)[*count + i] = stash[i];
+		;
+	// copy stash into line
+	copy_buffer(stash, *line + *count, i - 1);
+	// copy newline into line
 	if (stash[i] == '\n')
 		(*line)[*count + i] = '\n';
-	return (*line);
 }
 
 static char	*copy_clean(char **line, int *count, char *buffer, char *stash)
@@ -50,8 +53,7 @@ static char	*copy_clean(char **line, int *count, char *buffer, char *stash)
 	for (int i = -1; buffer[++i] != 0;)
 		(*line)[i] = buffer[i];
 	// copy stash into buffer
-	for (int i = -1; ++i < BUFFER_SIZE;)
-		buffer[i] = stash[i];
+	copy_buffer(stash, buffer, BUFFER_SIZE - 1);
 	clean_buffer(buffer);
 	return (*line);
 }
