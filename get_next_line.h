@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:26:18 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/12/21 08:25:29 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/12/21 11:03:05 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,8 @@ char		*read_line(char *buf, int fd, int *counter, char **line);
 /* -------------------------------------------------------------------------- */
 /*                                    utils                                   */
 /* -------------------------------------------------------------------------- */
-int			copy_buffer(char *src, char *dst, int range);
-int			ft_strlen(const char *str);
+
+void		*ft_memcpy(void *dst, const void *src, size_t n);
 void		*ft_calloc(size_t nitems, size_t size);
 void		clean_buffer(char *buffer);
 #endif

@@ -6,7 +6,7 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:25:50 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/12/21 08:33:27 by jschwabe         ###   ########.fr       */
+/*   Updated: 2023/12/21 11:02:25 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,9 @@ static char	*check_free(char *line)
 
 	if (!line)
 		return (NULL);
-	tmp = (char *) ft_calloc(sizeof(char), ft_strlen(line) + 1);
+	for (i = 0; line[i] != '\0'; ++i)
+		;
+	tmp = (char *) ft_calloc(sizeof(char), i + 1);
 	if (!tmp)
 		return (free(line), NULL);
 	for (i = 0; line[i] != '\0'; ++i)
@@ -41,25 +43,17 @@ static char	*check_free(char *line)
 	return (tmp);
 }
 
-/*
-** Function: copy_buffer
-** ---------------------
-** Copies the contents of the source buffer to the destination buffer up to the
-** specified range.
-**
-** src: The source buffer to copy from.
-** dst: The destination buffer to copy to.
-** range: The range up to which the contents should be copied.
-**
-** returns: The number of characters copied.
-*/
-int	copy_buffer(char *src, char *dst, int range)
+void	*ft_memcpy(void *dst, const void *src, size_t n)
 {
-	int	i;
+	char			*d;
+	const char		*s = src;
 
-	for (i = -1; ++i <= range;)
-		dst[i] = src[i];
-	return (i);
+	d = dst;
+	if (!d && !s)
+		return (0);
+	while (n-- && (d || s))
+		*d++ = *s++;
+	return (dst);
 }
 
 /*
@@ -93,7 +87,7 @@ char	*get_next_line(int fd)
 			line = (char *) ft_calloc(sizeof(char), BUFFER_SIZE + 1);
 			if (!line)
 				return (NULL);
-			copy_buffer(buf, line, counter);// copy buffer into line
+			ft_memcpy(line, buf, counter + 1);// copy buffer into line
 			clean_buffer(buf);// move stuff after newline to beginning of buffer
 			return (check_free(line));
 		}
@@ -119,5 +113,5 @@ void	clean_buffer(char *buf)
 	while (buf[nl_index] && buf[nl_index] != '\n')
 		nl_index++;
 	buf[nl_index] != '\n' ? buf[nl_index++] = 0 : nl_index++;
-	copy_buffer(buf + nl_index, buf, BUFFER_SIZE - nl_index);
+	ft_memcpy(buf, (const void *)(buf + nl_index), (BUFFER_SIZE - nl_index) + 1);
 }
