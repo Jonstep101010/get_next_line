@@ -6,87 +6,78 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:26:30 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/05/17 19:39:17 by jschwabe         ###   ########.fr       */
+/*   Updated: 2024/02/19 22:52:19 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line_bonus.h"
 
-void	*setnull(char *s)
+#ifndef LIBFT_H
+
+void	*ft_memcpy(void *dst, const void *src, size_t n)
 {
-	free(s);
-	s = NULL;
-	return (NULL);
+	char			*d;
+	const char		*s = src;
+
+	d = dst;
+	if (!d && !s)
+		return (0);
+	while (n-- && (d || s))
+		*d++ = *s++;
+	return (dst);
 }
 
-char	*check_n_free(char *line)
+void	*ft_memset(void *str, int c, size_t n)
 {
-	char	*tmp;
-	int		i;
+	size_t			i;
+	unsigned char	*ptr;
 
-	if (!line)
-		return (NULL);
+	ptr = str;
 	i = 0;
-	while (line[i] != 0)
-		i++;
-	tmp = malloc((i + 1) * sizeof(char));
-	if (!tmp)
-		return (free(line), line = NULL);
-	ft_bzero(tmp, i);
-	i = 0;
-	while (line[i] != 0)
+	while (i < n)
+		ptr[i++] = c;
+	return (str);
+}
+
+void	*ft_calloc(size_t nitems, size_t size)
+{
+	void	*ptr;
+
+	if (nitems && (nitems * size) / nitems != size)
+		return (0);
+	ptr = malloc(nitems * size);
+	if (!ptr)
+		return (0);
+	return ((ft_memset(ptr, 0, nitems * size)));
+}
+
+size_t	ft_strlcpy(char *dst, const char *src, size_t size)
+{
+	size_t	srclen;
+	size_t	x;
+
+	srclen = 0;
+	while (src[srclen] != '\0')
+		++srclen;
+	if (!size)
+		return (srclen);
+	x = -1;
+	while ((src[++x] != '\0') && (x < size - 1))
 	{
-		tmp[i] = line[i];
-		i++;
+		dst[x] = src[x];
 	}
-	free(line);
-	line = NULL;
-	return (tmp);
+	if (!src[x] || (x == size - 1))
+		dst[x] = 0;
+	return (srclen);
 }
+#endif // LIBFT_H
 
-void	clean_buffer(char *buffer)
+int	index_of(char *str, char c, int max_len)
 {
 	int	i;
-	int	start;
 
 	i = 0;
-	start = 0;
-	while (buffer[check_eol(buffer)] != '\n' && i < BUFFER_SIZE)
-		buffer[i++] = '\0';
-	if (buffer[check_eol(buffer)] == '\n')
-		start = check_eol(buffer) + 1;
-	while (i < BUFFER_SIZE)
-	{
-		if (start + i <= BUFFER_SIZE)
-			buffer[i] = buffer[start + i];
+	while (i < max_len && str[i] != c && str[i] != '\0')
 		i++;
-	}
-	buffer[BUFFER_SIZE] = 0;
-}
-
-int	check_eol(char *buffer)
-{
-	int	i;
-
-	i = 0;
-	while (buffer[i] != '\0')
-	{
-		if (buffer[i] == '\n')
-			return (i);
-		i++;
-	}
 	return (i);
-}
-
-char	*ft_bzero(char *s, int size)
-{
-	int	i;
-
-	i = 0;
-	while (i <= size)
-	{
-		s[i] = 0;
-		i++;
-	}
-	return (s);
 }
