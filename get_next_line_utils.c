@@ -6,85 +6,78 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:26:30 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/06/01 20:30:28 by jschwabe         ###   ########.fr       */
+/*   Updated: 2024/02/19 22:41:45 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*mallonize(char **line, size_t size)
+#ifndef LIBFT_H
+
+void	*ft_memcpy(void *dst, const void *src, size_t n)
 {
-	*line = malloc(size * sizeof(char));
-	if (!*line)
-		return (NULL);
-	str_bzero(*line, size - 1);
-	return (*line);
+	char			*d;
+	const char		*s = src;
+
+	d = dst;
+	if (!d && !s)
+		return (0);
+	while (n-- && (d || s))
+		*d++ = *s++;
+	return (dst);
 }
 
-char	*check_n_free(char *line, int i)
+void	*ft_memset(void *str, int c, size_t n)
 {
-	char	*tmp;
+	size_t			i;
+	unsigned char	*ptr;
 
-	if (!line)
-		return (NULL);
-	while (line[i] != 0)
-	{
-		i++;
-	}
-	if (!mallonize(&tmp, i + 1))
-		return (free(line), NULL);
-	i = -1;
-	while (line[++i] != 0)
-	{
-		tmp[i] = line[i];
-	}
-	free(line);
-	return (tmp);
+	ptr = str;
+	i = 0;
+	while (i < n)
+		ptr[i++] = c;
+	return (str);
 }
 
-char	*str_bzero(char *s, int n)
+void	*ft_calloc(size_t nitems, size_t size)
+{
+	void	*ptr;
+
+	if (nitems && (nitems * size) / nitems != size)
+		return (0);
+	ptr = malloc(nitems * size);
+	if (!ptr)
+		return (0);
+	return ((ft_memset(ptr, 0, nitems * size)));
+}
+
+size_t	ft_strlcpy(char *dst, const char *src, size_t size)
+{
+	size_t	srclen;
+	size_t	x;
+
+	srclen = 0;
+	while (src[srclen] != '\0')
+		++srclen;
+	if (!size)
+		return (srclen);
+	x = -1;
+	while ((src[++x] != '\0') && (x < size - 1))
+	{
+		dst[x] = src[x];
+	}
+	if (!src[x] || (x == size - 1))
+		dst[x] = 0;
+	return (srclen);
+}
+#endif // LIBFT_H
+
+int	index_of(char *str, char c, int max_len)
 {
 	int	i;
 
 	i = 0;
-	while (i <= n)
-		s[i++] = 0;
-	return (s);
-}
-
-int	eol(char *s)
-{
-	int	i;
-
-	i = 0;
-	while (s[i] != '\0')
-	{
-		if (s[i] == '\n')
-			return (i);
+	while (i < max_len && str[i] != c && str[i] != '\0')
 		i++;
-	}
 	return (i);
-}
-
-/*
-** @brief copy content into start of buffer
-** implements parts of substr funcionality for copying buffer
-** @param buffer to replace
-** @return new buffer, NULL on failure
-*/
-void	clean_buffer(char *buffer)
-{
-	int	i;
-	int	nl;
-
-	nl = eol(buffer);
-	i = 0;
-	if (buffer[nl] != '\n')
-		buffer[i++] = 0;
-	else
-		nl += 1;
-	i -= 1;
-	while (++i < BUFFER_SIZE - nl)
-		buffer[i] = buffer[nl + i];
-	buffer[i] = '\0';
 }

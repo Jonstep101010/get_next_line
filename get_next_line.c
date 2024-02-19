@@ -6,136 +6,123 @@
 /*   By: jschwabe <jschwabe@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/18 14:25:50 by jschwabe          #+#    #+#             */
-/*   Updated: 2023/06/01 21:57:50 by jschwabe         ###   ########.fr       */
+/*   Updated: 2024/02/19 22:43:44 by jschwabe         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+#include <limits.h>
 
-/*
-** @brief read a line from a fildes
-** check if line variable (NULL or '\0')
-** is an empty string and no newline in buffer
-** EOF reached or file is empty
-** @param fd file descriptor to read from
-** @return line read from file descriptor
-*/
+static char	*check_free(char *line)
+{
+	char	*tmp;
+	int		i;
+
+	if (!line)
+		return (NULL);
+	i = 0;
+	while (line[i] != '\0')
+		++i;
+	tmp = (char *) ft_calloc(sizeof(char), i + 1);
+	if (!tmp)
+		return (free(line), NULL);
+	ft_memcpy(tmp, line, i);
+	free(line);
+	return (tmp);
+}
+
+static char	*read_line(char *buf, int fd, int *counter, char **line);
+static void	clean_buffer(char *buf);
+
 char	*get_next_line(int fd)
 {
 	char			*line;
-	static char		buffer[BUFFER_SIZE + 1];
+	static char		buf[BUFFER_SIZE + 1];
 	int				counter;
-	int				i;
 
-	line = NULL;
-	counter = 0;
 	if (fd < 0 || BUFFER_SIZE < 1)
 		return (NULL);
-	while (counter <= BUFFER_SIZE && buffer[counter] && buffer[counter] != '\n')
-		counter++;
-	if (buffer[counter] == '\n')
+	line = NULL;
+	counter = 0;
+	while (counter <= BUFFER_SIZE && buf[counter])
 	{
-		if (!mallonize(&line, BUFFER_SIZE + 1))
-			return (NULL);
-		i = -1;
-		while (buffer[++i] && buffer[i] != '\n')
-			*(line + i) = buffer[i];
-		*(line + i) = buffer[i];
-		clean_buffer(buffer);
+		if (buf[counter] == '\n')
+		{
+			line = (char *) ft_calloc(sizeof(char), BUFFER_SIZE + 1);
+			if (!line)
+				return (NULL);
+			ft_memcpy(line, buf, counter + 1);
+			clean_buffer(buf);
+			return (check_free(line));
+		}
+		counter++;
 	}
+	if (buf[counter] != '\n')
+		read_line(buf, fd, &counter, &line);
+	return (check_free(line));
+}
+
+static void	clean_buffer(char *buf)
+{
+	int	nl_index;
+
+	nl_index = index_of(buf, '\n', INT_MAX);
+	if (buf[nl_index] != '\n')
+		buf[nl_index] = 0;
 	else
-		read_line(buffer, fd, &counter, &line);
-	return (check_n_free(line, 0));
+		nl_index++;
+	ft_memcpy(buf, (buf + nl_index), (BUFFER_SIZE - nl_index) + 1);
 }
 
-/*
-** @brief copy buffer into line and clean buffer
-** 
-** @param line 
-** @param buffer 
-** @param stash 
-** @return  
-*/
-static char	*copy_clean(char **line, int *count, char *buffer, char *stash)
+static void	read_success(char *tmp, char **line, int *counter)
 {
-	int		i;
+	int	i;
 
-	if (!mallonize(line, *count + 1))
-		return (NULL);
-	i = -1;
-	while (buffer[++i] != 0)
-		*(*line + i) = buffer[i];
-	i = -1;
-	while (++i < BUFFER_SIZE)
-		buffer[i] = stash[i];
-	clean_buffer(buffer);
-	return (*line);
+	*counter -= BUFFER_SIZE;
+	i = index_of(tmp, '\n', BUFFER_SIZE);
+	ft_memcpy((*line + *counter), tmp, i);
+	if (tmp[i] == '\n')
+		(*line)[*counter + i] = '\n';
 }
 
-/*
-** @brief parse line from stash
-** 
-** @param count 
-** @param line 
-** @param stash 
-** @return line
-*/
-static char	*parse_line(int *count, char **line, char *stash)
+/**
+ * @brief Reads a line from a file descriptor.
+ *
+ * This function reads a line from the specified file
+ * descriptor and stores it in the line parameter.
+ *
+ * @param buf Buffer to store temporary data read from the file descriptor.
+ * @param fd File descriptor to read from.
+ * @param counter Pointer to an integer representing the total
+ * number of characters read so far.
+ * @param line Pointer to a string to store the read line.
+ * @return The read line if successful, or NULL if an error occurs
+ * or the end of file is reached.
+ */
+static char	*read_line(char *buf, int fd, int *counter, char **line)
 {
-	int		i;
-
-	i = -1;
-	*count -= BUFFER_SIZE;
-	while (stash[++i] && stash[i] != '\n' && i < BUFFER_SIZE)
-		(*line)[*count + i] = stash[i];
-	if (stash[i] == '\n')
-		(*line)[*count + i] = '\n';
-	return (*line);
-}
-
-/*
-** @brief check if buffer has a newline
-** 
-** @param stash 
-** @return true	- if newline in buffer
-*/
-static bool	nl(char *stash)
-{
-	int		i;
-
-	i = -1;
-	while (stash[++i] && stash[i] != '\n' && i < BUFFER_SIZE)
-		;
-	if (stash[i] == '\n')
-		return (true);
-	return (false);
-}
-
-/*
-** @brief read line while stash has no newline
-** 
-** @param buf to copy into from stash
-** @param fd to read from
-** @param count for line index/read bytes
-** @param line address to store line
-** @return line read from file descriptor
-*/
-char	*read_line(char *buf, int fd, int *count, char **line)
-{
-	char	stash[BUFFER_SIZE + 1];
+	char	tmp[BUFFER_SIZE + 1];
 	int		rd;
+	int		i;
 
-	rd = read(fd, str_bzero(stash, BUFFER_SIZE), BUFFER_SIZE);
+	rd = read(fd, ft_memset(tmp, 0, BUFFER_SIZE), BUFFER_SIZE);
+	if (rd == -1)
+		return (ft_memset(buf, 0, BUFFER_SIZE));
 	if (rd > 0)
-		*count += BUFFER_SIZE;
-	else if (rd < 0)
-		return (str_bzero(buf, BUFFER_SIZE), NULL);
-	if ((((nl(stash) || (rd == 0 && *count != 0))
-				&& (!copy_clean(line, count, buf, stash)))
-			|| (!nl(stash) && rd != 0
-				&& !read_line(buf, fd, count, line))))
+		*counter += BUFFER_SIZE;
+	i = index_of(tmp, '\n', BUFFER_SIZE);
+	if (tmp[i] == '\n' || (rd == 0 && *counter != 0))
+	{
+		*line = (char *) ft_calloc(sizeof(char), *counter + 1);
+		if (!*line)
+			return (NULL);
+		ft_strlcpy(*line, buf, *counter + 1);
+		ft_memcpy(buf, tmp, BUFFER_SIZE);
+		clean_buffer(buf);
+	}
+	if (tmp[i] != '\n' && rd != 0 && !read_line(buf, fd, counter, line))
 		return (NULL);
-	if (rd)
-		parse_line(count, line, stash);
+	else if (rd > 0)
+		read_success(tmp, line, counter);
 	return (*line);
 }
