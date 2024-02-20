@@ -5,19 +5,33 @@ OBJS = $(SRCS:.c=.o)
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
+LDFLAGS =
+HEADERS = get_next_line.h
 
 all: $(NAME)
-debug: CFLAGS += -g
+debug: CFLAGS += -g3
 debug: re
-$(NAME): $(OBJS)
-	ar rcs $(NAME) $(OBJS)
-$(OBJS): $(SRCS)
-	$(CC) $(CFLAGS) -c $(SRCS)
 
-clean: 
-	rm -f $(OBJS)
+LIBFT = ../libft/libft.a
+LIBFT_DIR = $(dir $(LIBFT))
+
+# # Build the required library
+$(NAME): $(OBJS) $(LIBFT)
+	ar rcs $(NAME) $(OBJS)
+
+.c.o: $(HEADERS)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Include dependency files
+-include $(OBJS:.o=.d)
+$(LIBFT):
+	make -C $(LIBFT_DIR)
+
+clean: $(shell rm -f *.o *.d)
+	make -C $(dir $(LIBFT_DIR)) clean
 fclean: clean
-	rm -f $(NAME)
+	rm -f *.a
+	make -C $(dir $(LIBFT_DIR)) fclean
 
 re: fclean all
 .PHONY: all clean fclean re
