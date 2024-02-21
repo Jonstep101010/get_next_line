@@ -1,2 +1,6 @@
 program
 .vscode/
+*.a
+*.o
+*.d
+build
