@@ -27,7 +27,7 @@ $(NAME): $(OBJS) $(LIBFT)
 $(LIBFT):
 	make -C $(LIBFT_DIR)
 
-clean: $(shell rm -f *.o *.d)
+clean: $(shell rm -f *.o *.d; rm -rf build)
 	make -C $(dir $(LIBFT_DIR)) clean
 fclean: clean
 	rm -f *.a
